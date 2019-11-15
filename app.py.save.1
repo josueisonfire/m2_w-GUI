@@ -1,0 +1,199 @@
+#!/usr/bin/python3
+from flask import Flask
+from flask import request
+from flask import render_template
+from flask import jsonify
+from random import randint
+from pymongo import MongoClient
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from logging.handlers import RotatingFileHandler
+import pymongo
+import random
+import string
+import json
+import random
+import datetime
+import os
+import sys
+import smtplib
+
+import logging
+
+
+# Global Vars.
+EMAIL_RECIPIENT = "josueisonfire@gmail.com"
+
+
+app = Flask(__name__)
+BUFFER_SIZE = 2048
+buffer = ''
+client = MongoClient()
+db = client['test_database']
+collection = db['users']
+
+# ROUTES:  *****************************************************************
+
+@app.route("/")
+def hello():
+    return "Hello, Flask!"
+
+@app.route('/ttt/', methods=['POST'])
+def return_game_form():
+    push_log('Accessed /ttt/ with POST method')
+    push_log('PLEASE FUCKING WORK FOR PETERS SAKE YOU PIECE OF SHIT /ttt/p')
+    # if user is logged in, dynamically fill the welcome data into the page.
+    # else
+    #print('POST REQUEST: %s' %str(os.getcwd()), file=sys.stderr)
+    if request.form.get('name') != None:
+        name = request.form.get('name')
+        date = datetime.datetime.today()
+        return render_template('sample.html', name=name, date=date)
+    else:
+        return "Erroneous Request."
+
+@app.route('/ttt/', methods=['GET'])
+def init_form():
+    push_log('Accessed /ttt/ with GET method.')
+    push_log('PLEASE FUCKING WORK FOR PETERS SAKE YOU PIECE OF SHIT /ttt/g')
+    #print('Accessed INIT_FORM', file=sys.stderr)
+    return render_template('login_page.html')
+req_count = 0
+
+@app.route('/ttt/play', methods=['POST'])
+def play():
+    logging.info('Accessed /ttt/play with POST')
+    push_log('Accessed /ttt/play method with POST method.')
+    # check if user is signed in...
+        # if signed in, prompt user to logged 
+            #  if there is an ongoing game, load. <maybe ask the user if he wants to continue.>
+            #  add functionality in which a finished game is saved automatically, and resets a game if the player wishes.
+            #  scores and games should be saved automatically and dynamically.
+            #  if session is in progress, check if the post method is giving the following args: 'grid', and 'move' properties. if move == null, return grid as is.
+
+        # if not, prompt user to sample.html, the guest tictactoe page.
+    # obtain cookie data
+    session = request.cookies.get('SID')
+    logging.info('session is: %s' %session)
+    res = check_session(session)
+    # get data
+    received_data = request.get_data()
+    logging.info('received data: %s' %received_data)
+    data = json.loads(received_data)
+    rgrid = data.get('grid')
+    move = data.get('move')
+    
+    user_data = collection.find_one({"key":request.cookies.get('SID')})
+    # 
+    if (rgrid == None or rgrid == '') and (move == None or move == ''):
+        return json.dumps({"status":"ERROR", "msg":"invalid parameters"})
+    if move == None or move =='':
+        # No move was specified. Returns the gris as it was.
+        return jsonify(status='OK', grid=rgrid, winner=' ')
+
+    # there is an active session
+    if res == 0:
+        # check for resets.
+        if move == 'r':
+            
+            # reset curr_game field.
+            
+            #  reset user board.
+            reset_curr_game_board(user_data)
+            return jsonify(status='OK', grid=[' ',' ',' ',' ',' ',' ',' ',' ',' '],winner=' ')
+        
+        # if move == null or ''
+        if rgrid == None or rgrid == '':
+            # retrieve board.
+            push_log('no grid provided...')
+            grd = get_curr_board_grid(user_data)
+            push_log('curr_grid is %s' %grd)
+
+            # if grid is empty, make a new game
+            if grd == None:
+                # make new game
+                push_log('Grid is empty... making a new one')
+                make_new_game(user_data, op_type='init')
+                write_to_grid(user_data, move, 'X')
+                push_log('made move, and curr_board has val of: %s' %get_curr_board_grid(user_data))
+                return jsonify(status='OK', grid=get_curr_board_grid(user_data), winner=' ')
+            # update current board.
+            else:
+                # update move...
+                write_to_grid(user_data, move, 'X')
+                winner = check_victory(get_curr_board_grid(user_data)) 
+                # check for victory
+                if winner == 'TIE':
+                    # do what ties do
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'tie')
+                    return jsonify(status='OK', grid=ugrid, winner='TIE')
+                elif winner == 'X':
+                    # do what
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'X')
+                    return jsonify(status='OK', grid=ugrid, winner='X')
+                elif winner == 'O':
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'O')
+                    return jsonify(status='OK', grid=ugrid, winner='O')
+                # else, make an AI move.
+                hal9000_destroy_humanity(user_data)
+                # check for victories, again.
+                winner = check_victory(get_curr_board_grid(user_data)) 
+                if winner == 'TIE':
+                    # do what ties do
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'tie')
+                    return jsonify(status='OK', grid=ugrid, winner='TIE')
+                elif winner == 'X':
+                    # do what
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'X')
+                    return jsonify(status='OK', grid=ugrid, winner='X')
+                elif winner == 'O':
+                    ugrid = get_curr_board_grid(user_data)
+                    make_new_game(user_data)
+                    update_scoreboard(user_data, 'O')
+                    return jsonify(status='OK', grid=ugrid, winner='O')
+                else:
+                    # no winners detected, just return the updated grid.
+                    return jsonify(status='OK', grid=get_curr_board_grid(user_data), winner=' ')
+        # Do the fancy stuffs.
+
+    else:
+        return jsonify(status='ERROR', msg='not logged in')
+
+# ****************************************************************** N E W   F U N C T I O N S ***********************************************************
+error = ''
+@app.route('/adduser', methods=['POST'])
+def adduser():
+    # try:
+    push_log('Accessed /adduser through POST method.')
+
+    received_data = request.get_data()
+    push_log('RAW Data Received:  %s' %received_data)
+    data = json.loads(received_data)
+
+
+    # log_into("Accessed /adduser using POST")
+    if request.method == 'POST':
+        # received_data = request.get_data()
+        # obj = json.loads(received_data)
+        n_username = data['username']
+        n_email = data['email']
+        n_password = data['password']
+        push_log('Data Received: to route /adduser with values of: n_username: %s, n_email: %s, and n_password: %s' %(n_username, n_email, n_password))
+        push_log('Data Received: to route /adduser with values of: n_username: %s, n_email: %s, and n_password: %s' %(n_username, n_email, n_password))
+        #print('obtained POST requests to route /adduser with values of: n_username: %s, n_email: %s, and n_password: %s' %(n_username, n_email, n_password), file=sys.stderr)
+        res = None
+        if (n_username != None) and (n_email != None) and (n_password != None):
+            res = make_new_user(n_username, n_email, n_password)
+        else:
+            push_log('Returned: {"status":"ERROR", "msg":"Invalid parameters provided. Please provide valid parameters..."}')
+          

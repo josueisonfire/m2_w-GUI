@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<title>Welcome to Toddler!</title>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="static/noice.css">
+</head>
+<body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<h1>Welcome!</h1>
+<h2>SIGNUP</h2>
+
+<div id="resultDivContainer"></div>
+
+<div class="imgbox">
+    <img src="http://hdqwalls.com/wallpapers/himalayas-mountains-landscape-4k-f3.jpg" class='center-fit'>
+</div>
+
+<pre id="container" style= 
+        "color:blueviolet; font-size: 20px; font-weight: bold;"> 
+</pre> 
+
+ <form>
+
+  <div class="container">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="uname" required id='username'>
+
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" required id='password'>
+
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" required id='email'>
+
+  </div>
+
+</form> 
+
+<button onclick="wat()" id='submit_login' type="Submit">Sign Up</button>
+
+    <!--PERSONAL SCRIPT JavaScript-->
+<script type="text/javascript">
+    function wat()
+    {
+        console.log("Invoked login... ")
+        u_name = document.getElementById("username").value;
+        p_key = document.getElementById("password").value;
+        email = document.getElementById("email").value;
+        data = JSON.stringify({"username": u_name,"password": p_key, "email":email});
+        console.log("Data is:")
+        console.log(u_name)
+        console.log(p_key)
+
+        post_to_server("/adduser", data)
+
+    };
+    function post_to_server(path, input)
+    {
+        console.log("Invoked post to server")
+        //console.log("Posting to server:")
+        //console.log(data)
+        //$.post(path, data); 
+        
+        // $.ajax({
+        // type: "POST",
+        // url: path,
+        // data: input,
+        // dataType: "json",
+        // success: function(data) {
+        //     // data.redirect contains the string URL to redirect to
+        //     console.log(data)
+
+        // }
+
+
+        
+    // });
+
+        $.post(path,input, function(data, status)
+        {
+            sigh = JSON.stringify(data, undefined, 4)
+            console.log("parsed items: " + sigh)
+            document.getElementById("container").innerHTML = sigh;
+            alert("Status: " + status);
+            ("myelement1").innerHTML = sigh
+        
+        });
+
+    }
+</script>
+<!--<script type="text/javascript" src="login_page.js"></script>-->
+</body>
+</html> 

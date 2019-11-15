@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<title>Welcome to Toddler!</title>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="static/noice.css">
+</head>
+<body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<h2>VERIFY</h2>
+
+<div id="resultDivContainer"></div>
+
+<div class="imgbox">
+    <img src="http://hdqwalls.com/wallpapers/himalayas-mountains-landscape-4k-f3.jpg" class='center-fit'>
+</div>
+    
+ <form>
+
+  <div class="container">
+    <label for="key"><b>Key</b></label>
+    <input type="text" placeholder="Enter Key" name="key" required id='key'>
+
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" required id='email'>
+
+  </div>
+
+</form> 
+
+<button onclick="wat()" id='submit_login' type="Submit">Verify</button>
+
+    <!--PERSONAL SCRIPT JavaScript-->
+<script type="text/javascript">
+    function wat()
+    {
+        console.log("Invoked login... ")
+        u_name = document.getElementById("key").value;
+        email = document.getElementById("email").value;
+        data = JSON.stringify({"key": u_name,"email":email});
+        console.log("Data is:")
+        console.log(u_name)
+
+        post_to_server("/verify", data)
+
+    };
+    function post_to_server(path, input)
+    {
+        console.log("Invoked post to server")
+        //console.log("Posting to server:")
+        //console.log(data)
+        //$.post(path, data); 
+        
+        $.ajax({
+        type: "POST",
+        url: path,
+        data: input,
+        dataType: "json",
+        success: function(data) {
+            // data.redirect contains the string URL to redirect to
+            window.location.href = "/home";
+        }
+
+        
+    });
+    }
+    
+</script>
+<!--<script type="text/javascript" src="login_page.js"></script>-->
+</body>
+</html> 

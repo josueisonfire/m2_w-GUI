@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"> 
+    <head>
+        <meta charset="utf-8"/>
+        <title>Joshua Han's Tic Tac Toe</title>
+        <link rel="stylesheet" href="static/sample.css">
+    </head>
+    <body>
+        Hello {{name}}, {{date}}
+        <table>
+            <tr>
+                <td id = "0"> </td>
+                <td id = "1"> </td>
+                <td id = "2"> </td>
+            </tr>
+            <tr>
+                <td id = "3"> </td>
+                <td id = "4"> </td>
+                <td id = "5"> </td>
+            </tr>
+            <tr>
+                <td id = "6"> </td>
+                <td id = "7"> </td>
+                <td id = "8"> </td>
+            </tr>
+        </table> 
+        <!-- <form action="/ttt/play" method="POST">
+            <input type='hidden' name="reset"  value='yes'>
+            <input type='hidden' name="grid"  value=''>
+            <input type='hidden' name="move"  value=''>
+            <button type="submit">RESET_HTML</button>
+        </form> -->
+        <button id="reset_button" type="button">RESET_JS</button>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <!-- <script src="json2.js"></script> -->
+        <script src="static/sample.js"></script>
+        <h3 >Winner:</h3>
+        <h3 id = "winner">Game in progress...</h3>
+        
+    </body>
+</html>

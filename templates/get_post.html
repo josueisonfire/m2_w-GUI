@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<title>Welcome to Toddler!</title>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="static/noice.css">
+</head>
+<body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<h2>GET USER POSTS ID</h2>
+
+<div id="resultDivContainer"></div>
+
+<p id="myelement1"></p>
+
+<pre id="container" style= 
+        "color:green; font-size: 20px; font-weight: bold;"> 
+</pre> 
+
+ <form>
+
+  <div class="container">
+    <label for="uname"><b>Search by User...</b></label>
+    <input type="text" placeholder="ENTER Username" name="uname" required id='id'>
+    <input type="number" placeholder="Enter amt. of posts" name="limit" required id="limit">
+
+  </div>
+
+</form> 
+
+<button onclick="wat()" id='submit_login' type="Submit">FIND ITEM</button>
+<a href="/home">go back home</a>
+<a href="/logout">.                                   Logout</a>
+    <!--PERSONAL SCRIPT JavaScript-->
+<script type="text/javascript">
+    function wat()
+    {
+        console.log("Invoked login... ");
+        id = document.getElementById("id").value
+        limit = document.getElementById("limit").value
+        data = "/user/" + id + "/posts?limit=" + limit
+        console.log("Data is:" + data);
+
+        post_to_server(data);
+
+    };
+    function post_to_server(data)
+    {
+        console.log("Invoked post to server");
+        //console.log("Posting to server:")
+        //console.log(data)
+        
+        var ret = null;
+ 
+        $.get(data, function(data, status)
+        {
+            
+            len = data
+            sigh = JSON.stringify(data.items, undefined, 4)
+            console.log("length is: " + len + "parsed items: " + sigh)
+            document.getElementById("container").innerHTML = sigh;
+            //alert("Status: " + status);
+            ("myelement1").innerHTML = ret
+        
+        });
+
+        console.log("Data = " + ret)
+        
+        
+    }
+    
+    function addElement(elementTag, elementId, html) {
+        // Adds an element to the document
+        var p = document.getElementById("container");
+        var newElement = document.createElement(elementTag);
+        newElement.setAttribute('id', elementId);
+        newElement.innerHTML = html;
+        p.appendChild(newElement);
+    }
+
+</script>
+<!--<script type="text/javascript" src="login_page.js"></script>-->
+</body>
+</html> 
